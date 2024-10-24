@@ -23,49 +23,28 @@ profile_frame = ctk.CTkFrame(root, width=600, height=150, corner_radius=10, fg_c
 profile_frame.place(x=10, y=10)
 
 # Ajout de l'image du joueur
-
-
-#cadre de profil
-profile_frame = ctk.CTkFrame(root, width=600, height=150, corner_radius=10, fg_color="#FFA500")
-profile_frame.place(x=10, y=10)
-
-# Image de profil
-image_path = "Images/qatari_boss.png"  
+image_path = "Images/qatari_boss.png"  # Assurez-vous que l'image est dans le dossier 'Images'
 image = Image.open(image_path)  # Charger l'image
-profile_image = ctk.CTkLabel(root, text="")
-img = ctk.CTkImage(light_image=image, size=(80, 80))  
-profile_image.configure(image=img)
-profile_image.place(x=500, y=30)
+photo_de_profil = ctk.CTkImage(light_image=image, size=(80, 80))  # Création de l'image avec Pillow
 
-# Informations de profil sous forme de liste de tuples (nom_label, valeur_label)
-info = [
-    ("Jour actuel:", "5"),
-    ("Argent actuel:", "$2000"),
-    ("Revenus par période:", "$500"),
-    ("Coûts fixes:", "$100"),
-    ("Solde net:", "$2400")
-]
+# Affichage de l'image dans le label
+profile_image_label = ctk.CTkLabel(profile_frame, text="", image=photo_de_profil)
+profile_image_label.place(x=10, y=10)  # Positionner l'image
 
-# Nom du joueur et entreprise
+# Nom et entreprise
 profile_label = ctk.CTkLabel(profile_frame, text="Mr Boss", font=("Arial", 16), text_color="black")
 profile_label.place(x=100, y=10)
-
 entreprise_label = ctk.CTkLabel(profile_frame, text="Boss International", font=("Arial", 10), text_color="black")
 entreprise_label.place(x=100, y=40)
 
-# Boucle pour générer les informations (nom_label, valeur_label)
-for i, (nom, valeur) in enumerate(info):
-    # Positionnement dynamique avec l'index i pour éviter la répétition
-    info_label = ctk.CTkLabel(profile_frame, text=nom, font=("Arial", 10), text_color="black")
-    info_label.place(x=100, y=70 + i * 20)
-
-    valeur_label = ctk.CTkLabel(profile_frame, text=valeur, font=("Arial", 10), text_color="black")
-    valeur_label.place(x=250, y=70 + i * 20)
-
+info_label = ctk.CTkLabel(profile_frame, text="Jour actuel\nArgent actuel\nRevenus par période\nCoûts fixes\nSolde net",
+                          font=("Arial", 10), text_color="black")
+info_label.place(x=100, y=70)
 
 progress_bar = ctk.CTkProgressBar(root, width=600, height=30, progress_color='green')
 progress_bar.place(x=10, y=170)
 
+# Barre de progression
 def update_progress_bar():
     while True:
         for i in range(3001):
@@ -77,27 +56,42 @@ def update_progress_bar():
 def start_progress():
     threading.Thread(target=update_progress_bar, daemon=True).start()
 
+# Monnaie sélectionnée par défaut (euros)
+selected_currency = "€"
+
+# Menu déroulant pour sélectionner la monnaie
+currency_options = ["€", "$", "£"]
+currency_var = ctk.StringVar(value=selected_currency)
+
+# Fonction pour mettre à jour la monnaie sélectionnée
+def update_currency(choice):
+    global selected_currency
+    selected_currency = choice
+    afficher_machines()  # Mettre à jour l'affichage des machines avec la nouvelle monnaie
+
 scrollable_frame = ctk.CTkScrollableFrame(root, width=600, height=300, fg_color="#FF7F7F")
 scrollable_frame.place(x=650, y=100)
 
+# Fonction pour afficher les machines
 def afficher_machines():
     global menu_ouvert
     menu_ouvert = 'machines'
     for widget in scrollable_frame.winfo_children():
         widget.destroy()
     machine_info = [
-        {"Nom": "Machine 1", "Durée": "5 sec", "Apport": "$100", "Type": "X"},
-        {"Nom": "Machine 2", "Durée": "10 sec", "Apport": "$200", "Type": "X"},
-        {"Nom": "Machine 3", "Durée": "15 sec", "Apport": "$300", "Type": "X"},
-        {"Nom": "Machine 4", "Durée": "20 sec", "Apport": "$400", "Type": "X"},
-        {"Nom": "Machine 5", "Durée": "25 sec", "Apport": "$500", "Type": "X"}
+        {"Nom": "Machine 1", "Durée": "5 sec", "Apport": "$100", "Type": "X", "Prix": 100},
+        {"Nom": "Machine 2", "Durée": "10 sec", "Apport": "$200", "Type": "X", "Prix": 200},
+        {"Nom": "Machine 3", "Durée": "15 sec", "Apport": "$300", "Type": "X", "Prix": 300},
+        {"Nom": "Machine 4", "Durée": "20 sec", "Apport": "$400", "Type": "X", "Prix": 400},
+        {"Nom": "Machine 5", "Durée": "25 sec", "Apport": "$500", "Type": "X", "Prix": 500}
     ]
     for i, machine in enumerate(machine_info):
         machine_label = ctk.CTkLabel(scrollable_frame, text=f"{machine['Nom']} - {machine['Durée']} - {machine['Apport']} - {machine['Type']}")
         machine_label.grid(row=i, column=0, padx=10, pady=5, sticky="ew")
-        buy_button = ctk.CTkButton(scrollable_frame, text="Acheter", width=100)
+        buy_button = ctk.CTkButton(scrollable_frame, text=f"Acheter ({machine['Prix']} {selected_currency})", width=100)
         buy_button.grid(row=i, column=1, padx=10, pady=5)
 
+# Fonction pour afficher les techniciens
 def afficher_techniciens():
     global menu_ouvert
     menu_ouvert = 'techniciens'
@@ -113,15 +107,16 @@ def afficher_techniciens():
     for i, technician in enumerate(technician_info):
         technician_label = ctk.CTkLabel(scrollable_frame, text=f"{technician['Nom']} - {technician['Spécialité']} - {technician['Durée']} - {technician['Salaire']}")
         technician_label.grid(row=i, column=0, padx=10, pady=5, sticky="ew")
-        hire_button = ctk.CTkButton(scrollable_frame, text="Engager", width=100)
+        hire_button = ctk.CTkButton(scrollable_frame, text=f"Engager ({technician['Salaire']} {selected_currency})", width=100)
         hire_button.grid(row=i, column=1, padx=10, pady=5)
 
-btn_machine = ctk.CTkButton(root, text="Btn Machine", width=140, height=50, command=afficher_machines)
+btn_machine = ctk.CTkButton(root, text="Machines", width=140, height=50, command=afficher_machines)
 btn_machine.place(x=650, y=20)
 
-btn_technicien = ctk.CTkButton(root, text="Btn Technicien", width=140, height=50, command=afficher_techniciens)
+btn_technicien = ctk.CTkButton(root, text="Techniciens", width=140, height=50, command=afficher_techniciens)
 btn_technicien.place(x=800, y=20)
 
+# --- PARAMÈTRES ---
 def open_partie():
     options_frame.lift()
     partie_button.configure(fg_color="gray")
@@ -173,6 +168,7 @@ def open_profil():
     effects_label.place_forget()
     effects_slider.place_forget()
 
+# Fonction pour masquer l'interface principale du jeu
 def hide_game_interface():
     profile_frame.place_forget()
     progress_bar.place_forget()
@@ -182,6 +178,7 @@ def hide_game_interface():
     options_button.place_forget()
     options_frame.place(x=0, y=0)
 
+# Fonction pour afficher l'interface principale du jeu
 def show_game_interface():
     profile_frame.place(x=10, y=10)
     progress_bar.place(x=10, y=170)
@@ -196,40 +193,46 @@ def show_game_interface():
         scrollable_frame.place(x=650, y=100)
         afficher_techniciens()
 
+# Bouton pour ouvrir le menu des paramètres
 options_button = ctk.CTkButton(root, text="⚙️", width=50, height=50, command=hide_game_interface)
 options_button.place(x=950, y=20)
 
+# Cadre des options (couvre toute la fenêtre)
 options_frame = ctk.CTkFrame(root, width=1280, height=720, fg_color="#E8C36A")
 options_frame.place_forget()
 
+# Boutons pour les différentes sections des options (Partie, Son, Profil)
 partie_button = ctk.CTkButton(options_frame, text="Partie", width=200, command=open_partie)
 son_button = ctk.CTkButton(options_frame, text="Son", width=200, command=open_son)
 profil_button = ctk.CTkButton(options_frame, text="Profil", width=200, command=open_profil)
 
+# Position des boutons
 partie_button.place(x=100, y=20)
 son_button.place(x=350, y=20)
 profil_button.place(x=600, y=20)
 
+# Section Partie
 save_button = ctk.CTkButton(options_frame, text="Sauvegarder")
 load_button = ctk.CTkButton(options_frame, text="Charger une partie")
 reset_button = ctk.CTkButton(options_frame, text="Réinitialiser la partie")
 
+# Section Son
 music_label = ctk.CTkLabel(options_frame, text="Musique")
 music_slider = ctk.CTkSlider(options_frame)
 effects_label = ctk.CTkLabel(options_frame, text="Effets Sonores")
 effects_slider = ctk.CTkSlider(options_frame)
 
+# Section Profil
 name_label = ctk.CTkLabel(options_frame, text="Nom:")
 name_entry = ctk.CTkEntry(options_frame)
 currency_label = ctk.CTkLabel(options_frame, text="Monnaie:")
-currency_dropdown = ctk.CTkComboBox(options_frame, values=["€", "$", "£"])
+currency_dropdown = ctk.CTkComboBox(options_frame, values=currency_options, command=update_currency, variable=currency_var)
 
-def close_options():
-    show_game_interface()
-
-back_button = ctk.CTkButton(options_frame, text="←", width=50, command=close_options)
+# Bouton retour
+back_button = ctk.CTkButton(options_frame, text="←", width=50, command=show_game_interface)
 back_button.place(x=1200, y=20)
 
+# Lancer la barre de progression
 start_progress()
-afficher_machines()
+afficher_machines()  # Afficher les machines au démarrage
 root.mainloop()
