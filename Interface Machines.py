@@ -1,5 +1,5 @@
-import tkinter as tk
-from tkinter import Canvas
+import customtkinter as ctk #Custom au lieu de tkinter
+from customtkinter import CTkCanvas as Canvas
 
 class InterfaceGraphique:
     def __init__(self, root, machines):
@@ -51,7 +51,7 @@ machines = [
     Machine("Perceuse2", 75),
 ]
 
-# Créer l'interface Tkinter
-root = tk.Tk()
+# Créer l'interface customtkinter
+root = ctk.CTk()
 interface = InterfaceGraphique(root, machines)
 root.mainloop()
