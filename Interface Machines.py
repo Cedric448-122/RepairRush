@@ -55,7 +55,7 @@ class InterfaceGraphique:
         for machine in self.machines:
             machine.degrader_etat()
         self.dessiner_machines()
-        self.root.after(750, self.mise_a_jour_etats)  # Mise à jour automatique toutes les 2 secondes
+        self.root.after(750, self.mise_a_jour_etats)  # Mise à jour automatique toutes les x secondes
 
 
 class Machine:
