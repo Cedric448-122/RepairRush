@@ -2,6 +2,7 @@ import customtkinter as ctk
 import sound_manager as sm
 import time
 import threading
+from PIL import Image
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
@@ -17,18 +18,50 @@ root.geometry("1280x720")
 
 menu_ouvert = None
 
+# Profil du joueur (élargi pour correspondre à la barre de progression)
 profile_frame = ctk.CTkFrame(root, width=600, height=150, corner_radius=10, fg_color="#FFA500")
 profile_frame.place(x=10, y=10)
 
+# Ajout de l'image du joueur
+
+
+#cadre de profil
+profile_frame = ctk.CTkFrame(root, width=600, height=150, corner_radius=10, fg_color="#FFA500")
+profile_frame.place(x=10, y=10)
+
+# Image de profil
+image_path = "Images/qatari_boss.png"  
+image = Image.open(image_path)  # Charger l'image
+profile_image = ctk.CTkLabel(root, text="")
+img = ctk.CTkImage(light_image=image, size=(80, 80))  
+profile_image.configure(image=img)
+profile_image.place(x=500, y=30)
+
+# Informations de profil sous forme de liste de tuples (nom_label, valeur_label)
+info = [
+    ("Jour actuel:", "5"),
+    ("Argent actuel:", "$2000"),
+    ("Revenus par période:", "$500"),
+    ("Coûts fixes:", "$100"),
+    ("Solde net:", "$2400")
+]
+
+# Nom du joueur et entreprise
 profile_label = ctk.CTkLabel(profile_frame, text="Mr Boss", font=("Arial", 16), text_color="black")
-profile_label.place(x=10, y=10)
+profile_label.place(x=100, y=10)
 
-role_label = ctk.CTkLabel(profile_frame, text="Boss International", font=("Arial", 10), text_color="black")
-role_label.place(x=10, y=40)
+entreprise_label = ctk.CTkLabel(profile_frame, text="Boss International", font=("Arial", 10), text_color="black")
+entreprise_label.place(x=100, y=40)
 
-info_label = ctk.CTkLabel(profile_frame, text="Jour actuel\nArgent actuel\nRevenus par période\nCoûts fixes\nSolde net",
-                          font=("Arial", 10), text_color="black")
-info_label.place(x=10, y=70)
+# Boucle pour générer les informations (nom_label, valeur_label)
+for i, (nom, valeur) in enumerate(info):
+    # Positionnement dynamique avec l'index i pour éviter la répétition
+    info_label = ctk.CTkLabel(profile_frame, text=nom, font=("Arial", 10), text_color="black")
+    info_label.place(x=100, y=70 + i * 20)
+
+    valeur_label = ctk.CTkLabel(profile_frame, text=valeur, font=("Arial", 10), text_color="black")
+    valeur_label.place(x=250, y=70 + i * 20)
+
 
 progress_bar = ctk.CTkProgressBar(root, width=600, height=30, progress_color='green')
 progress_bar.place(x=10, y=170)
@@ -198,5 +231,5 @@ back_button = ctk.CTkButton(options_frame, text="←", width=50, command=close_o
 back_button.place(x=1200, y=20)
 
 start_progress()
-
+afficher_machines()
 root.mainloop()
