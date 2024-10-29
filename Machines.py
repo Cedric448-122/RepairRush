@@ -1,12 +1,13 @@
 import random
 
 class Machine:
-    def __init__(self, nom, type_machine, cout_achat, temps_entretien, revenu_par_periode):
+    def __init__(self, nom, type_machine, cout_achat, temps_entretien, revenu_par_periode, pourcentage_degradation):
         self.nom = nom
         self.type_machine = type_machine
         self.cout_achat = cout_achat
         self.temps_entretien = temps_entretien
         self.revenu_par_periode = revenu_par_periode
+        self.pourcentage_degradation = pourcentage_degradation  # Nouveau attribut pour la dégradation
         self.etat = 100  # L'état initial de la machine est à 100%
         
     def afficher_details(self):
@@ -26,9 +27,10 @@ class Machine:
             return f"Rouge ({self.etat}%)"
     
     def degrader_etat(self):
-        # Simule la dégradation de l'état de la machine avec le temps (perte de 10 à 30%)
-        degradation = random.randint(10, 30)
+        # Simule la dégradation de l'état de la machine en fonction du pourcentage
+        degradation = int(self.etat * (self.pourcentage_degradation / 100))
         self.etat = max(0, self.etat - degradation)
+        print(f"La machine {self.nom} a perdu {degradation}% d'état. État actuel: {self.etat}%")
     
     def entretenir(self):
         # Remet l'état de la machine à 100%
@@ -39,17 +41,17 @@ class Machine:
 
 class Tour(Machine):
     def __init__(self, nom):
-        super().__init__(nom, "Tour", cout_achat=20000, temps_entretien=5, revenu_par_periode=3000)
+        super().__init__(nom, "Tour", cout_achat=20000, temps_entretien=5, revenu_par_periode=3000, pourcentage_degradation=10)
 
 
 class Fraiseuse(Machine):
     def __init__(self, nom):
-        super().__init__(nom, "Fraiseuse", cout_achat=30000, temps_entretien=7, revenu_par_periode=4000)
+        super().__init__(nom, "Fraiseuse", cout_achat=30000, temps_entretien=7, revenu_par_periode=4000, pourcentage_degradation=15)
 
 
 class Perceuse(Machine):
     def __init__(self, nom):
-        super().__init__(nom, "Perceuse", cout_achat=15000, temps_entretien=4, revenu_par_periode=2000)
+        super().__init__(nom, "Perceuse", cout_achat=15000, temps_entretien=4, revenu_par_periode=2000, pourcentage_degradation=8)
 
 
 def afficher_machines(liste_machines):
@@ -74,18 +76,21 @@ machines = [
     Perceuse("Perceuse Avancée")
 ]
 
-# Améliorations spécifiques des machines
-machines[1].cout_achat = 25000      # TourAvancé
+# Améliorations spécifiques des machines avancées
+machines[1].cout_achat = 25000      # Tour Avancé
 machines[1].temps_entretien = 6
 machines[1].revenu_par_periode = 3500
+machines[1].pourcentage_degradation = 7  # Tour avancée se dégrade moins vite
 
-machines[3].cout_achat = 35000      # FraiseuseAvancée
+machines[3].cout_achat = 35000      # Fraiseuse Avancée
 machines[3].temps_entretien = 9
 machines[3].revenu_par_periode = 4500
+machines[3].pourcentage_degradation = 10  # Fraiseuse avancée se dégrade moins vite
 
-machines[5].cout_achat = 23000      # PerceuseAvancée
+machines[5].cout_achat = 23000      # Perceuse Avancée
 machines[5].temps_entretien = 5
 machines[5].revenu_par_periode = 2500
+machines[5].pourcentage_degradation = 5  # Perceuse avancée se dégrade beaucoup moins vite
 
 # Simulation de l'utilisation des machines
 afficher_machines(machines)
