@@ -3,7 +3,7 @@ from customtkinter import CTkCanvas as Canvas
 import threading
 from PIL import Image, ImageTk
 
-# Configuration de l'interface graphique
+# J'ai oublié de commit lol 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
