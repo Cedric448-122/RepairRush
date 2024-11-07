@@ -1,56 +1,19 @@
-machines_data = [
-    {
-        "nom": "Tour",
-        "type_machine": "Tour",
-        "cout_achat": 20000,
-        "temps_entretien": 5,
-        "revenu_par_periode": 3000,
-        "deplet_rate": 0.21,
-        "image_path": "images/TourNiveau1.png"
-    },
-    {
-        "nom": "Tour Avancé",
-        "type_machine": "Tour",
-        "cout_achat": 25000,
-        "temps_entretien": 6,
-        "revenu_par_periode": 3500,
-        "deplet_rate": 0.165,
-        "image_path": "images/TourNiveau2.png"
-    },
-    {
-        "nom": "CNC",
-        "type_machine": "CNC",
-        "cout_achat": 30000,
-        "temps_entretien": 7,
-        "revenu_par_periode": 4000,
-        "deplet_rate": 0.135,
-        "image_path": "images/CNCNiveau1.png"
-    },
-    {
-        "nom": "CNC Avancée",
-        "type_machine": "CNC",
-        "cout_achat": 35000,
-        "temps_entretien": 9,
-        "revenu_par_periode": 4500,
-        "deplet_rate": 0.12,
-        "image_path": "images/CNCNiveau2.png"
-    },
-    {
-        "nom": "Bras Robot",
-        "type_machine": "Bras Robot",
-        "cout_achat": 15000,
-        "temps_entretien": 4,
-        "revenu_par_periode": 2000,
-        "deplet_rate": 0.1,
-        "image_path": "images/RobotNiveau1.png"
-    },
-    {
-        "nom": "Bras Robot Avancé",
-        "type_machine": "Bras Robot",
-        "cout_achat": 23000,
-        "temps_entretien": 5,
-        "revenu_par_periode": 2500,
-        "deplet_rate": 0.084,
-        "image_path": "images/RobotNiv2.png"
-    }
+class Machine:
+    def __init__(self, nom, niveau_machine, type_machine, cout_achat, temps_entretien, revenu_par_periode, deplet_rate, image_path):
+        self.nom = nom
+        self.niveau_machine = niveau_machine
+        self.type_machine = type_machine
+        self.cout_achat = cout_achat
+        self.temps_entretien = temps_entretien
+        self.revenu_par_periode = revenu_par_periode
+        self.deplet_rate = deplet_rate
+        self.image_path = image_path
+
+machines = [
+    Machine("Tour", "Apprentis", "Méchanique",  20000, 5, 3000, 0.21, "images/TourNiveau1.png"),
+    Machine("Tour", "Maître", "Méchanique", 25000, 6, 3500, 0.165, "images/TourNiveau2.png"),
+    Machine("CNC", "Artisan", "Electrique", 30000, 7, 4000, 0.135, "images/CNCNiveau1.png"),
+    Machine("CNC", "Virtuose", "Electrique", 35000, 9, 4500, 0.12, "images/CNCNiveau2.png"),
+    Machine("Bras Robot", "Rookie", "Informatique", 15000, 4, 2000, 0.1, "images/RobotNiveau1.png"),
+    Machine("Bras Robot", " Légendaire", "Informatique", 23000, 5, 2500, 0.084, "images/RobotNiv2.png")
 ]

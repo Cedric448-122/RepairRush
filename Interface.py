@@ -1,20 +1,15 @@
 import customtkinter as ctk
-import sound_manager as sm
 import time
-import threading
-from PIL import Image
+from PIL import Image, ImageTk
+from machines_data import Machine, machines
+from technician_data import Technician, technicians
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
-sound_manager = sm.SoundManager()
-
-def play_sound():
-    sound_manager.playsound('./sounds/ca-ching.mp3')
-
 root = ctk.CTk()
 root.title("Repair Rush")
-root.geometry("1280x720")
+root.geometry("1500x900")
 
 menu_ouvert = None
 
@@ -45,16 +40,16 @@ progress_bar = ctk.CTkProgressBar(root, width=600, height=30, progress_color='gr
 progress_bar.place(x=10, y=170)
 
 # Barre de progression
-def update_progress_bar():
-    while True:
-        for i in range(3001):
-            progress_bar.set(i / 3000)
-            time.sleep(0.01)
-        play_sound()
+def update_progress_bar(i=0):
+    if i <= 3000:
+        progress_bar.set(i / 3000)
+        root.after(10, update_progress_bar, i + 1)
+    else:
         progress_bar.set(0)
+        root.after(10, update_progress_bar, 0)
 
 def start_progress():
-    threading.Thread(target=update_progress_bar, daemon=True).start()
+    update_progress_bar()
 
 # Monnaie sélectionnée par défaut (euros)
 selected_currency = "€"
@@ -69,7 +64,7 @@ def update_currency(choice):
     selected_currency = choice
     afficher_machines()  # Mettre à jour l'affichage des machines avec la nouvelle monnaie
 
-scrollable_frame = ctk.CTkScrollableFrame(root, width=600, height=300, fg_color="#FF7F7F")
+scrollable_frame = ctk.CTkScrollableFrame(root, width=660, height=300, fg_color="#FF7F7F")
 scrollable_frame.place(x=650, y=100)
 
 # Fonction pour afficher les machines
@@ -78,18 +73,41 @@ def afficher_machines():
     menu_ouvert = 'machines'
     for widget in scrollable_frame.winfo_children():
         widget.destroy()
-    machine_info = [
-        {"Nom": "Machine 1", "Durée": "5 sec", "Apport": "$100", "Type": "X", "Prix": 100},
-        {"Nom": "Machine 2", "Durée": "10 sec", "Apport": "$200", "Type": "X", "Prix": 200},
-        {"Nom": "Machine 3", "Durée": "15 sec", "Apport": "$300", "Type": "X", "Prix": 300},
-        {"Nom": "Machine 4", "Durée": "20 sec", "Apport": "$400", "Type": "X", "Prix": 400},
-        {"Nom": "Machine 5", "Durée": "25 sec", "Apport": "$500", "Type": "X", "Prix": 500}
-    ]
-    for i, machine in enumerate(machine_info):
-        machine_label = ctk.CTkLabel(scrollable_frame, text=f"{machine['Nom']} - {machine['Durée']} - {machine['Apport']} - {machine['Type']}")
-        machine_label.grid(row=i, column=0, padx=10, pady=5, sticky="ew")
-        buy_button = ctk.CTkButton(scrollable_frame, text=f"Acheter ({machine['Prix']} {selected_currency})", width=100)
-        buy_button.grid(row=i, column=1, padx=10, pady=5)
+
+    # Ajouter les titres des colonnes
+    col_titles = ["Nom", "Niveau", "Type", "Revenu par période", ""]
+    for idx, title in enumerate(col_titles):
+        title_label = ctk.CTkLabel(scrollable_frame, text=title, text_color="white", font=("Arial", 12, "bold"))
+        title_label.grid(row=0, column=idx + 1, padx=10, pady=5, sticky="w")
+
+    for i, machine in enumerate(machines):
+        # Ligne de séparation
+        separator = ctk.CTkLabel(scrollable_frame, text="".ljust(150, "-"), text_color="gray")
+        separator.grid(row=i * 2 + 1, column=0, columnspan=6, padx=5, pady=5, sticky="ew")
+
+        # Chargement de l'image de la machine
+        image = Image.open(machine.image_path).resize((80, 80))
+        machine_image = ImageTk.PhotoImage(image)
+        image_label = ctk.CTkLabel(scrollable_frame, image=machine_image, text="")
+        image_label.image = machine_image  # Empêcher l'image d'être supprimée par le garbage collector
+        image_label.grid(row=i * 2 + 2, column=0, padx=10, pady=5)
+
+        # Informations sur la machine
+        nom_label = ctk.CTkLabel(scrollable_frame, text=f"{machine.nom}")
+        nom_label.grid(row=i * 2 + 2, column=1, padx=10, pady=5, sticky="w")
+
+        niveau_label = ctk.CTkLabel(scrollable_frame, text=f"{machine.niveau_machine}")
+        niveau_label.grid(row=i * 2 + 2, column=2, padx=10, pady=5, sticky="w")
+
+        type_machine_label = ctk.CTkLabel(scrollable_frame, text=f"{machine.type_machine}")
+        type_machine_label.grid(row=i * 2 + 2, column=3, padx=10, pady=5, sticky="w")
+
+        revenu_label = ctk.CTkLabel(scrollable_frame, text=f"{machine.revenu_par_periode} {selected_currency}")
+        revenu_label.grid(row=i * 2 + 2, column=4, padx=10, pady=5, sticky="nsew")
+
+        # Bouton pour acheter la machine
+        buy_button = ctk.CTkButton(scrollable_frame, text=f"{machine.cout_achat} {selected_currency}", width=150)
+        buy_button.grid(row=i * 2 + 2, column=5, padx=10, pady=5)
 
 # Fonction pour afficher les techniciens
 def afficher_techniciens():
@@ -97,18 +115,38 @@ def afficher_techniciens():
     menu_ouvert = 'techniciens'
     for widget in scrollable_frame.winfo_children():
         widget.destroy()
-    technician_info = [
-        {"Nom": "Technicien 1", "Spécialité": "Mécanique", "Durée": "5 sec", "Salaire": "$100"},
-        {"Nom": "Technicien 2", "Spécialité": "Électrique", "Durée": "10 sec", "Salaire": "$200"},
-        {"Nom": "Technicien 3", "Spécialité": "Informatique", "Durée": "15 sec", "Salaire": "$300"},
-        {"Nom": "Technicien 4", "Spécialité": "Mécanique", "Durée": "20 sec", "Salaire": "$400"},
-        {"Nom": "Technicien 5", "Spécialité": "Électrique", "Durée": "25 sec", "Salaire": "$500"}
-    ]
-    for i, technician in enumerate(technician_info):
-        technician_label = ctk.CTkLabel(scrollable_frame, text=f"{technician['Nom']} - {technician['Spécialité']} - {technician['Durée']} - {technician['Salaire']}")
-        technician_label.grid(row=i, column=0, padx=10, pady=5, sticky="ew")
-        hire_button = ctk.CTkButton(scrollable_frame, text=f"Engager ({technician['Salaire']} {selected_currency})", width=100)
-        hire_button.grid(row=i, column=1, padx=10, pady=5)
+
+    # Ajouter les titres des colonnes
+    col_titles = ["Nom", "Spécialité", "Niveau", ""]
+    for idx, title in enumerate(col_titles):
+        title_label = ctk.CTkLabel(scrollable_frame, text=title, text_color="white", font=("Arial", 12, "bold"))
+        title_label.grid(row=0, column=idx + 1, padx=10, pady=5, sticky="w")
+
+    for i, technician in enumerate(technicians):
+        # Ligne de séparation
+        separator = ctk.CTkLabel(scrollable_frame, text="".ljust(150, "-"), text_color="gray")
+        separator.grid(row=i * 2 + 1, column=0, columnspan=5, padx=5, pady=5, sticky="ew")
+
+        # Chargement de l'image du technicien
+        image = Image.open(technician.image_path).resize((80, 80))
+        technician_image = ImageTk.PhotoImage(image)
+        image_label = ctk.CTkLabel(scrollable_frame, image=technician_image, text="")
+        image_label.image = technician_image  # Empêcher l'image d'être supprimée par le garbage collector
+        image_label.grid(row=i * 2 + 2, column=0, padx=10, pady=5)
+
+        # Informations sur le technicien
+        technician_label = ctk.CTkLabel(scrollable_frame, text=f"{technician.nom}")
+        technician_label.grid(row=i * 2 + 2, column=1, padx=10, pady=5, sticky="w")
+
+        speciality_label = ctk.CTkLabel(scrollable_frame, text=f"Spécialité: {technician.specialite}")
+        speciality_label.grid(row=i * 2 + 2, column=2, padx=10, pady=5, sticky="w")
+
+        niveau_label = ctk.CTkLabel(scrollable_frame, text=f"Niveau: {technician.niveau}")
+        niveau_label.grid(row=i * 2 + 2, column=3, padx=10, pady=5, sticky="w")
+
+        # Bouton pour engager le technicien
+        hire_button = ctk.CTkButton(scrollable_frame, text=f"Engager ({technician.salaire} {selected_currency})", width=150)
+        hire_button.grid(row=i * 2 + 2, column=4, padx=10, pady=5)
 
 btn_machine = ctk.CTkButton(root, text="Machines", width=140, height=50, command=afficher_machines)
 btn_machine.place(x=650, y=20)
@@ -234,5 +272,9 @@ back_button.place(x=1200, y=20)
 
 # Lancer la barre de progression
 start_progress()
-afficher_machines()  # Afficher les machines au démarrage
+
+# Afficher les machines au démarrage
+afficher_machines()
+start_progress()
+# Lancer l'interface principale
 root.mainloop()
