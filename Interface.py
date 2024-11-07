@@ -2,14 +2,20 @@ import customtkinter as ctk
 import time
 from PIL import Image, ImageTk
 from machines_data import Machine, machines
-from technician_data import Technician, technicians
+from technician_data import technicians
+from testMachines import InterfaceGraphique
+from sound_manager import SoundManager
+
+
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
-
+sound_manager = SoundManager()
+effects_volume = 100  
 root = ctk.CTk()
 root.title("Repair Rush")
-root.geometry("1500x900")
+dimmensions = "1500x900"
+root.geometry(dimmensions)
 
 menu_ouvert = None
 
@@ -47,6 +53,10 @@ def update_progress_bar(i=0):
     else:
         progress_bar.set(0)
         root.after(10, update_progress_bar, 0)
+        sound_manager.setvolume(effects_volume)  # Ajuster le volume avant de jouer le son
+        sound_manager.playsound("sounds/ca-ching.mp3")
+
+
 
 def start_progress():
     update_progress_bar()
@@ -55,7 +65,7 @@ def start_progress():
 selected_currency = "€"
 
 # Menu déroulant pour sélectionner la monnaie
-currency_options = ["€", "$", "£"]
+currency_options = ["€", "\$", "£"]
 currency_var = ctk.StringVar(value=selected_currency)
 
 # Fonction pour mettre à jour la monnaie sélectionnée
@@ -65,7 +75,7 @@ def update_currency(choice):
     afficher_machines()  # Mettre à jour l'affichage des machines avec la nouvelle monnaie
 
 scrollable_frame = ctk.CTkScrollableFrame(root, width=660, height=300, fg_color="#FF7F7F")
-scrollable_frame.place(x=650, y=100)
+scrollable_frame.place(x=660, y=100)
 
 # Fonction pour afficher les machines
 def afficher_machines():
@@ -138,10 +148,10 @@ def afficher_techniciens():
         technician_label = ctk.CTkLabel(scrollable_frame, text=f"{technician.nom}")
         technician_label.grid(row=i * 2 + 2, column=1, padx=10, pady=5, sticky="w")
 
-        speciality_label = ctk.CTkLabel(scrollable_frame, text=f"Spécialité: {technician.specialite}")
+        speciality_label = ctk.CTkLabel(scrollable_frame, text=f"{technician.specialite}")
         speciality_label.grid(row=i * 2 + 2, column=2, padx=10, pady=5, sticky="w")
 
-        niveau_label = ctk.CTkLabel(scrollable_frame, text=f"Niveau: {technician.niveau}")
+        niveau_label = ctk.CTkLabel(scrollable_frame, text=f"{technician.niveau}")
         niveau_label.grid(row=i * 2 + 2, column=3, padx=10, pady=5, sticky="w")
 
         # Bouton pour engager le technicien
@@ -153,6 +163,11 @@ btn_machine.place(x=650, y=20)
 
 btn_technicien = ctk.CTkButton(root, text="Techniciens", width=140, height=50, command=afficher_techniciens)
 btn_technicien.place(x=800, y=20)
+
+# Cadre des machines ajouté à l'interface principale
+machines_frame = ctk.CTkFrame(root, width=1380, height=300)
+machines_frame.place(x=10, y=600)
+interface_machines = InterfaceGraphique(machines_frame, machines)
 
 # --- PARAMÈTRES ---
 def open_partie():
@@ -236,7 +251,7 @@ options_button = ctk.CTkButton(root, text="⚙️", width=50, height=50, command
 options_button.place(x=950, y=20)
 
 # Cadre des options (couvre toute la fenêtre)
-options_frame = ctk.CTkFrame(root, width=1280, height=720, fg_color="#E8C36A")
+options_frame = ctk.CTkFrame(root, width=1500, height=900, fg_color="#E8C36A")
 options_frame.place_forget()
 
 # Boutons pour les différentes sections des options (Partie, Son, Profil)
@@ -255,10 +270,19 @@ load_button = ctk.CTkButton(options_frame, text="Charger une partie")
 reset_button = ctk.CTkButton(options_frame, text="Réinitialiser la partie")
 
 # Section Son
+def adjust_music_volume(volume):
+    sound_manager.setvolume(int(volume)) # Définir le volume de la musique
+def adjust_effects_volume(volume):
+    global effects_volume
+    effects_volume = int(volume)  # Définir le volume des effets sonores
+
+  
 music_label = ctk.CTkLabel(options_frame, text="Musique")
-music_slider = ctk.CTkSlider(options_frame)
+music_slider = ctk.CTkSlider(options_frame, from_=0, to=100, command=adjust_music_volume)
 effects_label = ctk.CTkLabel(options_frame, text="Effets Sonores")
-effects_slider = ctk.CTkSlider(options_frame)
+effects_slider = ctk.CTkSlider(options_frame, from_=0, to=100, command=adjust_effects_volume)
+
+
 
 # Section Profil
 name_label = ctk.CTkLabel(options_frame, text="Nom:")
@@ -271,10 +295,12 @@ back_button = ctk.CTkButton(options_frame, text="←", width=50, command=show_ga
 back_button.place(x=1200, y=20)
 
 # Lancer la barre de progression
-start_progress()
+sound_manager.playmusic("sounds/mainost.mp3", loop=True)
 
+start_progress()
 # Afficher les machines au démarrage
 afficher_machines()
-start_progress()
+
+
 # Lancer l'interface principale
 root.mainloop()

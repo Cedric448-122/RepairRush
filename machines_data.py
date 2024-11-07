@@ -17,3 +17,4 @@ machines = [
     Machine("Bras Robot", "Rookie", "Informatique", 15000, 4, 2000, 0.1, "images/RobotNiveau1.png"),
     Machine("Bras Robot", " Légendaire", "Informatique", 23000, 5, 2500, 0.084, "images/RobotNiv2.png")
 ]
+

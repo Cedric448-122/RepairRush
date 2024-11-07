@@ -2,26 +2,27 @@ import customtkinter as ctk
 from customtkinter import CTkCanvas as Canvas
 import threading
 from PIL import Image, ImageTk
+from machines_data import machines
 
 # J'ai oublié de commit lol 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
 class Machine:
-    def __init__(self, root, nom, type_machine, cout_achat, temps_entretien, revenu_par_periode, deplet_rate, image_path):
-        self.nom = nom
-        self.type_machine = type_machine
-        self.cout_achat = cout_achat
-        self.temps_entretien = temps_entretien
-        self.revenu_par_periode = revenu_par_periode
-        self.deplet_rate = deplet_rate
+    def __init__(self, root, machine_data):
+        self.nom = machine_data.nom
+        self.type_machine = machine_data.type_machine
+        self.cout_achat = machine_data.cout_achat
+        self.temps_entretien = machine_data.temps_entretien
+        self.revenu_par_periode = machine_data.revenu_par_periode
+        self.deplet_rate = machine_data.deplet_rate
         self.etat = 100  # État initial à 100%
 
         # Création de l'interface de la machine
         self.frame = ctk.CTkFrame(root, width=200, height=300, corner_radius=10)
         self.frame.pack(pady=10, padx=10, side="left")
 
-        self.label_nom = ctk.CTkLabel(self.frame, text=f"{self.nom} ({self.type_machine})", font=("Arial", 12))
+        self.label_nom = ctk.CTkLabel(self.frame, text=f"{self.nom} ({machine_data.niveau_machine})", font=("Arial", 12))
         self.label_nom.pack(pady=5)
 
         # Conteneur pour l'image et la barre d'état
@@ -29,7 +30,7 @@ class Machine:
         self.image_et_barre_frame.pack()
 
         # Chargement de l'image de la machine
-        image = Image.open(image_path).resize((150, 150))
+        image = Image.open(machine_data.image_path).resize((150, 150))
         self.image = ImageTk.PhotoImage(image)
         self.label_image = ctk.CTkLabel(self.image_et_barre_frame, image=self.image, text="")
         self.label_image.grid(row=0, column=0, padx=5)
@@ -82,29 +83,26 @@ class Machine:
         self.update_barre()
 
 class InterfaceGraphique:
-    def __init__(self, root, machines):
-        self.root = root
-        self.root.title("État des Machines avec Barres Verticales, Images et Réparation")
-        self.machines = machines
+    def __init__(self, frame, machines):
+        self.frame = frame
+        self.frame.configure(corner_radius=0)
+        self.machines = [Machine(self.frame, machine) for machine in machines]
         self.start_degradation_threads()
 
     def start_degradation_threads(self):
         for machine in self.machines:
             threading.Thread(target=machine.degrader_etat, daemon=True).start()
 
-# Initialisation des machines
-root = ctk.CTk()
-root.geometry("1380x250")
-machines = [
-    Machine(root, "Tour", "Tour", 20000, 5, 3000, 0.21, "images/TourNiveau1.png"),
-    Machine(root, "Tour Avancé", "Tour", 25000, 6, 3500, 0.165, "images/TourNiveau2.png"),
-    Machine(root, "CNC", "CNC", 30000, 7, 4000, 0.135, "images/CNCNiveau1.png"),
-    Machine(root, "CNC Avancée", "CNC", 35000, 9, 4500, 0.12, "images/CNCNiveau2.png"),
-    Machine(root, "Bras Robot", "Bras Robot", 15000, 4, 2000, 0.1, "images/RobotNiveau1.png"),
-    Machine(root, "Bras Robot Avancé", "Bras Robot", 23000, 5, 2500, 0.084, "images/RobotNiv2.png")
-]
+# Exemple d'utilisation dans un autre fichier
+if __name__ == "__main__":
+    root = ctk.CTk()
+    root.geometry("1380x800")
 
+    # Création d'un cadre pour les machines dans l'interface principale
+    machines_frame = ctk.CTkFrame(root, width=1380, height=300)
+    machines_frame.place(x=0, y=250)
 
-# Lancer l'interface
-interface = InterfaceGraphique(root, machines)
-root.mainloop()
+    # Initialiser l'interface des machines dans le cadre
+    interface = InterfaceGraphique(machines_frame, machines)
+
+    root.mainloop()
