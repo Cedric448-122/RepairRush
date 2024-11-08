@@ -1,0 +1,82 @@
+import tkinter as tk
+from tkinter import simpledialog, messagebox
+from PIL import Image, ImageTk
+
+class TechnicienApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Gestion des Techniciens")
+        self.root.config(bg="#ADD8E6")  #bg(c'est bag ground pour le code couleur "#ADD8E6")
+
+        # Charger l'image du technicien
+        try:
+            img = Image.open("technician.png")
+            img = img.resize((100, 100)) 
+            self.icon = ImageTk.PhotoImage(img)
+        except Exception as e:
+            print("Erreur de chargement de l'image :", e)
+            self.root.destroy()
+            return
+
+        # Liste des techniciens et widgets
+        self.techniciens = []
+        self.frames_techniciens = []
+
+        # Boutons pour ajouter et sélectionner des techniciens
+        btn_add = tk.Button(self.root, text="Ajouter un Technicien", command=self.add_technicien)
+        btn_add.grid(row=0, column=0, padx=10, pady=10)
+
+        btn_select = tk.Button(self.root, text="Sélectionner un Technicien", command=self.select_technicien)
+        btn_select.grid(row=0, column=1, padx=10, pady=10)
+
+        # Cadre pour afficher les techniciens
+        self.cadre_techniciens = tk.Frame(self.root, bg="#ADD8E6")
+        self.cadre_techniciens.grid(row=1, column=0, columnspan=2, padx=10, pady=10)
+
+    def add_technicien(self):
+        # Demander le nom du nouveau technicien
+        nom = simpledialog.askstring("Nom du Technicien", "Entrez le nom du technicien :")
+        if nom:
+            self.techniciens.append({"Nom": nom})
+            self.display_techniciens()
+
+    def display_techniciens(self):
+        # Effacer les cadres de techniciens actuels
+        for frame in self.frames_techniciens:
+            frame.destroy()
+        self.frames_techniciens.clear()
+
+        # Créer un cadre pour chaque technicien
+        for index, technicien in enumerate(self.techniciens):
+            cadre_technicien = tk.Frame(self.cadre_techniciens, bg="#ADD8E6", padx=10, pady=10)
+            cadre_technicien.grid(row=0, column=index, padx=5, pady=5)
+
+            # Afficher l'icône
+            label_image = tk.Label(cadre_technicien, image=self.icon, bg="#ADD8E6")
+            label_image.pack()
+
+            # Afficher le nom
+            label_nom = tk.Label(cadre_technicien, text=technicien["Nom"], bg="#ADD8E6")
+            label_nom.pack()
+
+            # Stocker le cadre pour une éventuelle mise à jour
+            self.frames_techniciens.append(cadre_technicien)
+
+    def select_technicien(self):
+        # Afficher une liste pour sélectionner un technicien
+        if not self.techniciens:
+            messagebox.showinfo("Info", "Aucun technicien disponible.")
+            return
+
+        noms = [technicien["Nom"] for technicien in self.techniciens]
+        nom = simpledialog.askstring("Sélectionner un Technicien", f"Entrez le nom du technicien parmi : {', '.join(noms)}")
+
+        if nom and nom in noms:
+            messagebox.showinfo("Sélection Technicien", f"Technicien sélectionné : {nom}")
+        elif nom:
+            messagebox.showwarning("Erreur", "Ce technicien n'existe pas.")
+
+#
+root = tk.Tk()
+app = TechnicienApp(root)
+root.mainloop()
